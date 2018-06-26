@@ -1,0 +1,15 @@
+- RAM - Random Access Memory
+- ROM - Read Only Memory
+- DRAM - Dynamic RAM 动态随机访问存储器
+- SRAM - Static RAM
+- ASLR - Address-Space Layout Randomization 地址空间格局随机化
+	- 增加攻击者预测目的地址的难度，防止其直接定位代码位置
+- CLI - Command Line Interface 命令行界面
+- IPC - Inter-Process Communication 进程间通信
+- CGI - Common Gateway Interface 通用网关接口
+	- Computer Graphics Interface 计算机图形标准接口
+- KDE - K Desktop Environment K桌面环境
+- GIMP - GNU Image Manipulation Program 
+- GTK+ - GIMP Tooklit
+- PDF - Portable Document File 便携式文档格式
+- Bash - Bourne Again Shell
