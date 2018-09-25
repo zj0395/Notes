@@ -1,5 +1,7 @@
 # 正则表达式
+参考于[正则表达式](https://github.com/ziishaned/learn-regex)
 >有些人面临一个问题时会想：“我知道，可以使用正则表达式来解决这个问题”。于是现在他们有两个问题了。——Jamie Zawinski
+
 ##### 通配符 '.'
 	'.ython'可匹配'python'与'Aython'等
 ##### 字符集
