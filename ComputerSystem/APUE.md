@@ -92,7 +92,7 @@
 - 作用：阻塞，直到某信号的发生
 - 条件本身是由互斥量保护的：调用前手动获取锁，阻塞时会自动释放锁，醒来后自动获取锁
 - 示例代码：**注意，线程醒来，发现队列为空(被其它线程处理了)，就继续等待；如果代码不能容忍这种竞争，就要在发信号的时候占有互斥量，即`pthread_cond_signal( &qready )`写到`pthread_mutex_unlock( &qlock )`之前，这样只会有一个线程获取到锁，醒来**
-'''cpp
+```
 #include <pthread.h>
 struct msg
 {
@@ -127,7 +127,7 @@ void enqueue_msg( struct msg \*mp )
     pthread_mutex_unlock( &qlock );
     pthread_cond_signal( &qready );
 }
-'''
+```
 #### 自旋锁
 - 忙等待的一种锁
 - 适用于：锁被持有的时间短，而且线程不希望在重新调度上花费太多的成本
