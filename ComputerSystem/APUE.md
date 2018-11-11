@@ -47,3 +47,30 @@
 - 有很多软件包h使用`sbrk`系统调用来实现自己的存储空间分配算法
 - 系统调用通常提供最小接口，而库函数通常提供比较复杂的功能
 ## 二、UNIX 标准及实现
+## 十一、线程
+- 每个线程都包含有表示执行环境所必需的信息，其中包括进程中标识线程的线程ID、一组寄存器值、栈、调度优先级和策略、信号屏蔽字、errno变量以及线程私有数据
+- POSIX 线程的功能测试宏是`_POSIX_THREADS`，位于`<unistd.h>`里
+- 线程 ID 只有在它所属的进程上下文中才有意义
+#### 线程创建
+- 新创建的线程可以访问进程的地址空间，并且继承调用线程的浮点环境和信号屏蔽量，但是该线程的挂起信号集会被清除
+- `pthread_t pthread_self()`获得本线程的id
+#### 线程终止
+- 三种返回方式
+    1. 用`return`返回
+    2. 被同进程中的其它线程`pthread_cancel`。返回值的指针只想的内存单元被设置为`PTHREAD_CANCELED`
+    3. 线程调用`pthread_exit`
+- `pthread_cleanup_push` 和 `pthread_cleanup_pop` 用于清理线程，用的栈
+    1. 调用 `pthread_exit` 时
+    2. 响应取消请求时
+    3. 用非零参数调用 `pthread_cleanup_pop` 时
+- `pthread_detahc` 分离线程，分离后将无法使用`pthread_join`
+#### 线程同步
+- 增量操作通常分解为以下3步
+    1. 从内存单元读入寄存器
+    2. 在寄存器中对变量做增量操作
+    3. 新的值写回内存单元
+##### 互斥量
+- `pthread_mutex_lock`、`pthread_mutex_trylock`、`pthread_mutex_unlock`
+##### 避免死锁
+- 仔细控制互斥量加锁的顺序
+- 可以先释放占有的锁，过一段时间再试，使用`pthread_mutex_trylock`
