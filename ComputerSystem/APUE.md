@@ -74,3 +74,63 @@
 #### 避免死锁
 - 仔细控制互斥量加锁的顺序
 - 可以先释放占有的锁，过一段时间再试，使用`pthread_mutex_trylock`
+- 多线程的软件设计设计需在代码复杂性和性能之间找到正确的平衡。如果锁的粒度太粗，就会出现很多线程阻塞等待相同的锁；如果锁的粒度太细，那么过多的锁开销会使系统性能受到影响，而且代码变得复杂
+#### pthread_mutex_timedlock
+- 该函数允许设置线程阻塞时间，超时时返回错误码`ETIMEDOUT`
+#### 读写锁
+- 允许更高的并行性
+- 一般实现：当有一个线程试图获取写锁时，读写锁通常会阻塞随后的读锁请求，以避免写锁饿死
+- 非常适合于对数据结构读的次数远大于写的情况
+- 使用之前必须初始化，释放底层内存之前必须销毁
+- `pthread_rwlock_t`、`pthread_rwlock_init`、`pthread_rwlock_destory`
+- `pthread_rwlock_rdlock`、`pthread_rwlock_wrlock`、`pthread_rwlock_unlock`
+- 需检查`pthread_rwlock_unlock`的返回值
+#### 带超时的读写锁
+- `pthread_rwlock_timedrdlock`、`pthread_rwlock_timedwrlock`
+#### 条件变量
+- `pthread_cond_t`
+- 作用：阻塞，直到某信号的发生
+- 条件本身是由互斥量保护的：调用前手动获取锁，阻塞时会自动释放锁，醒来后自动获取锁
+- 示例代码：**注意，线程醒来，发现队列为空(被其它线程处理了)，就继续等待；如果代码不能容忍这种竞争，就要在发信号的时候占有互斥量，即`pthread_cond_signal( &qready )`写到`pthread_mutex_unlock( &qlock )`之前，这样只会有一个线程获取到锁，醒来**
+'''cpp
+#include <pthread.h>
+struct msg
+{
+    struct msg* m_next;
+};
+
+struct msg \*workq;
+
+pthread_cond_t qready = PTHREAD_COND_INITIALIZER;
+pthread_mutex_t qlock = PTHREAD_MUTEX_INITIALIZER;
+
+void process_msg(void)
+{
+    struct msg* mp;
+
+    for(;;)
+    {
+        pthread_mutex_lock( &qplco );
+        while( workq == NULL )
+        pthread_cond_wait( &qready, &qlock );
+        mp = workq;
+        workq = mp->m_next;
+        pthread_mutex_unlock( *qlock );
+    }
+};
+
+void enqueue_msg( struct msg \*mp )
+{
+    pthread_mutex_lock( &qlock );
+    mp->next = workq;
+    workq = mp;
+    pthread_mutex_unlock( &qlock );
+    pthread_cond_signal( &qready );
+}
+'''
+#### 自旋锁
+- 忙等待的一种锁
+- 适用于：锁被持有的时间短，而且线程不希望在重新调度上花费太多的成本
+- 自旋锁通常作为底层原语用于实现其他类型的锁，根据它们所基于的系统体系结构，可以通过使用测试并设置指令有效的实现。当然这里说的有效也还是会造成CPU的浪费: 当线程自旋等待锁变为可用时，CPU不能做其他的事情。这也是自旋锁只能够被持有一小段时间的原因
+- 自旋锁用在非抢占式内核中时是非常有用的: 除了提供互斥机制以外，它们会阻塞中断，这样中断处理程序就不会让系统陷入死锁状态，因为它需要获取已被加锁的自旋锁
+- 用户层，自旋锁并不是非常有用，除非运行在不允许抢占的实时调度类中
