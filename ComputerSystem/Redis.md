@@ -192,13 +192,13 @@ typedef struct intset {
 - 整数不会被自动降级
 ## 第七章 压缩列表(ziplist)
 - 每个列表项要么是小整数值，要么是长度比较短的字符串
+
 | :属性:  | :类型:   | 长度  | 用途                                            |
 | zlbytes | uint32_t | 4字节 | 记录压缩列表的长度，用于重新分配内存或计算zlend |
 | zltail  | uint32_t | 4字节 | 记录尾节点的偏移，以快速取得尾节点              |
 | zllen   | uint16_t | 2字节 | 记录节点的数量                                  |
 | entryX  | 列表节点 | 不定  | 节点，长度取决于内容                            |
 | zlend   | uint_8   | 1字节 | 0xFF，标记压缩列表的结束                        |
-zlbytes 4字节，记录压缩列表的字节总数
 ### 节点
 - 每个节点由`previous_entry_length`、`encoding`、`content`三部分组成
 - `previous_entry_length`的长度可以是1个字节或5个字节。前一节点的长度小于254，就只用1个字节；前一节点的长度大于等于254时，占5个字节，第一个字节是0xFE，后四个字节是前一个节点的长度
