@@ -249,7 +249,7 @@ typedef struct redisObject {
 ```
 
 | 对象         | 对象type属性的值 | TYPE命令的输出 |
-| --:          | --:              | --:            |
+| :--          | :--              | :--            |
 | 字符串对象   | REDIS_STRING     | "string"       |
 | 列表对象     | REDIS_LIST       | "list"         |
 | 哈希对象     | REDIS_HASH       | "hash"         |
@@ -259,7 +259,7 @@ typedef struct redisObject {
 ### 底层实现
 
 | 类型         | 编码                      | 对象                               |
-| --:          | --:                       | -:                                 |
+| :--          | :--                       | :-                                 |
 | REDIS_STRING | REDIS_ENCODING_INT        | 使用整数值实现的字符串对象         |
 | REDIS_STRING | REDIS_ENCODING_EMBSTR     | 使用embstr编码的简单动态字符串     |
 | REDIS_STRING | REDIS_ENCODING_RAW        | 简单动态字符串                     |
