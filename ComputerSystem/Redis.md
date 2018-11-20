@@ -155,8 +155,10 @@ typedef struct zskiplistNode {
     } level[];
 } zskiplistNode;
 ```
+
 - 每一个节点的层高是1-32之间的随机数
 - 跳跃表的结构如下
+
 ```
 typedef struct zskiplist {
 
@@ -170,6 +172,7 @@ typedef struct zskiplist {
     int level;
 };
 ```
+
 ## 第六章 整数集合(intset)
 - 有序且不重复
 ```
@@ -183,8 +186,9 @@ typedef struct intset {
 
     // 保存元素的数组，取决于编码方式
     int8_t contents[];
-}
+};
 ```
+
 ### 整数升级
 - 16位升级为32位，先升级空间，复制值，再改变编码方式
 - 每次添加新元素都可能会引起升级
@@ -204,3 +208,67 @@ typedef struct intset {
 - 每个节点由`previous_entry_length`、`encoding`、`content`三部分组成
 - `previous_entry_length`的长度可以是1个字节或5个字节。前一节点的长度小于254，就只用1个字节；前一节点的长度大于等于254时，占5个字节，第一个字节是0xFE，后四个字节是前一个节点的长度
 - 利用`previous_entry_length`可实现从尾到头的遍历
+- `encoding`
+
+| 编码               | 编码长度 | content属性的值                       |
+| :--:               | :--:     | :--:                                  |
+| 00bbbbbb           | 1字节    | 长度小于等于63的字节数组              |
+| 01bbbbbb bbbbbbbb  | 2字节    | 长度小于等于16383的字节数组           |
+| 10000000 4字节长度 | 5字节    | 长度小于等于4294967295的字节数组      |
+| 11000000           | 1字节    | int16_t                               |
+| 11010000           | 1字节    | int32_t                               |
+| 11100000           | 1字节    | int64_t                               |
+| 11110000           | 1字节    | 24位有符号整数                        |
+| 11111110           | 1字节    | int_8                                 |
+| 1111xxxx           | 1字节    | 无content，已经保存了介于0-12之间的值 |
+
+### 连锁更新
+- 某个节点的插入，使其长度超过了254，需要扩充`previous_entry_length`到5个字节，导致之后的节点都发生了这样的扩充
+- 删除节点也可能会导致后方节点的`previous_entry_length`扩充
+- 尽管连锁更新的复杂度很高，但造成性能问题的几率很低，需要连续的长度在250-253字节的节点
+
+## 第八章 对象
+- 可以针对不同的使用场景为对象设置多种不同的数据结构实现，从而优化在不同场景下的效率
+- Redis 的对象实现了基于引用计数的内存共享和内存回收机制
+- Redis 的对象带有访问时间记录信息，可记录数据库键的空转时长，在服务器启用 maxmemory 时，空转时长较大的键可能会被优先删除
+### 对象的类型与编码
+```
+typedef struct redisObject {
+
+    // 类型
+    unsigned type:4;
+
+    // 编码
+    unsigned encoding:4;
+
+    // 指向底层实现数据结构的指针
+    void *ptr;
+
+    // ...
+} robj;
+```
+
+| 对象         | 对象type属性的值 | TYPE命令的输出 |
+| :--:         | :--:             | :--:           |
+| 字符串对象   | REDIS_STRING     | "string"       |
+| 列表对象     | REDIS_LIST       | "list"         |
+| 哈希对象     | REDIS_HASH       | "hash"         |
+| 集合对象     | REDIS_SET        | "set"          |
+| 有序集合对象 | REDIS_ZSET       | "zset"         |
+
+### 底层实现
+
+| 类型         | 编码                      | 对象                               |
+| :--:         | :--:                      | :-:                                |
+| REDIS_STRING | REDIS_ENCODING_INT        | 使用整数值实现的字符串对象         |
+| REDIS_STRING | REDIS_ENCODING_EMBSTR     | 使用embstr编码的简单动态字符串     |
+| REDIS_STRING | REDIS_ENCODING_RAW        | 简单动态字符串                     |
+| REDIS_LIST   | REDIS_ENCODING_ZIPLIST    | 使用压缩列表实现的列表对象         |
+| REDIS_LIST   | REDIS_ENCODING_LINKEDLIST | 使用双端链表实现的列表对象         |
+| REDIS_HASH   | REDIS_ENCODING_ZIPLIST    | 使用压缩列表实现的哈希对象         |
+| REDIS_HASH   | REDIS_ENCODING_HT         | 使用字典实现的哈希对象             |
+| REDIS_SET    | REDIS_INTSET              | 使用整数集合实现的集合对象         |
+| REDIS_SET    | REDIS_ENCODING_HT         | 使用字典实现的集合对象             |
+| REDIS_ZSET   | REDIS_ENCODING_ZIPLIST    | 使用压缩列表实现的有序集合对象     |
+| REDIS_ZSET   | REDIS_ENCODING_SKIPLIST   | 使用跳跃表和字典实现的有序集合对象 |
+
