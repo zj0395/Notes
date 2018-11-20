@@ -122,7 +122,7 @@ typedef struct dictType {
     4. 随着字典操作不断进行，在某个时间点ht[0]会全部rehash到ht[1]，程序将rehashidx设置为-1，表示已完成
 - 好处是分而治之，避免了集中式rehash带来的庞大计算量
 - 渐进式rehash期间，新添加的键值对都会被保存到ht[1]上，删除、查找、更新操作会在两个哈希表上进行
-## 第五章 跳跃表 skiplist -- 未完成
+## 第五章 跳跃表 skiplist
 - 支持平均O(logN)，最坏O(N)的查找
 - 实现比平衡树简单的多，所以不少程序使用跳跃树代替平衡树
 - Redis 使用跳跃表作为有序集合键的底层实现之以
@@ -135,7 +135,7 @@ typedef struct dictType {
 ```
 typedef struct zskiplistNode {
 
-    // 后退指针
+    // 后退指针，与层无关，始终指向前一个节点
     struct zskiplistNode *backward;
 
     // 分值
@@ -155,3 +155,51 @@ typedef struct zskiplistNode {
     } level[];
 } zskiplistNode;
 ```
+- 每一个节点的层高是1-32之间的随机数
+- 跳跃表的结构如下
+```
+typedef struct zskiplist {
+
+    // 表头节点和表尾节点
+    struct zskiplist *headr, *tail;
+
+    // 表中节点数量
+    unsigned long length;
+
+    // 表中最大层数的节点的层数
+    int level;
+};
+```
+## 第六章 整数集合(intset)
+- 有序且不重复
+```
+typedef struct intset {
+    
+    // 编码方式，如int16,int32,int64
+    uint32_t encoding;
+
+    // 集合包含的元素数量
+    uint32_t length;
+
+    // 保存元素的数组，取决于编码方式
+    int8_t contents[];
+}
+```
+### 整数升级
+- 16位升级为32位，先升级空间，复制值，再改变编码方式
+- 每次添加新元素都可能会引起升级
+### 整数降级
+- 整数不会被自动降级
+## 第七章 压缩列表(ziplist)
+- 每个列表项要么是小整数值，要么是长度比较短的字符串
+| :属性:  | :类型:   | 长度  | 用途                                            |
+| zlbytes | uint32_t | 4字节 | 记录压缩列表的长度，用于重新分配内存或计算zlend |
+| zltail  | uint32_t | 4字节 | 记录尾节点的偏移，以快速取得尾节点              |
+| zllen   | uint16_t | 2字节 | 记录节点的数量                                  |
+| entryX  | 列表节点 | 不定  | 节点，长度取决于内容                            |
+| zlend   | uint_8   | 1字节 | 0xFF，标记压缩列表的结束                        |
+zlbytes 4字节，记录压缩列表的字节总数
+### 节点
+- 每个节点由`previous_entry_length`、`encoding`、`content`三部分组成
+- `previous_entry_length`的长度可以是1个字节或5个字节。前一节点的长度小于254，就只用1个字节；前一节点的长度大于等于254时，占5个字节，第一个字节是0xFE，后四个字节是前一个节点的长度
+- 利用`previous_entry_length`可实现从尾到头的遍历
