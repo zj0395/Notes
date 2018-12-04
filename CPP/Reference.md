@@ -1,8 +1,8 @@
 # CPP备忘录
 
-- c++11 保证，多个线程下，局部静态变量也只会被初始化一次
+- c++11 保证，多个线程下，局部静态变量也只会被初始化一次 https://stackoverflow.com/questions/8102125/is-local-static-variable-initialization-thread-safe-in-c11
 
-- 模板类的静态变量定义可以直接写在头文件里，运行时即便各个cpp文件都引用了头文件，模板类中的静态变量也只会被初始化一次
+- 模板类的静态变量定义可以直接写在头文件里，运行时即便各个cpp文件都引用了头文件，模板类中的静态变量也只会被初始化一次 https://stackoverflow.com/questions/1553854/template-static-variable
 
 - `<atomic>`
 	- std::atomic_flag c++11原子的布尔类型
