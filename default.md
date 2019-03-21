@@ -6,6 +6,7 @@
 #### [C++风格](http://zh-google-styleguide.readthedocs.io/en/latest/google-cpp-styleguide/contents/)  [英文版本](http://google.github.io/styleguide/cppguide.html)  
 #### [GitHub-zj0395](https://github.com/zj0395)
 #### [区块链技术指南](https://yeasy.gitbooks.io/blockchain_guide/content/)
+#### [c++基础](https://blog.csdn.net/xiongchao99/article/details/64441017)
 
 ### 博客内容根据[我的笔记](https://github.com/zj0395/Notes)自动更新
 
