@@ -9,6 +9,7 @@
 	- std::atomic 对数据结构进行原子性封装，不可复制也不可移动
 
 
+- c++核心准则 http://isocpp.github.io/CppCoreGuidelines/CppCoreGuidelines
 - c++内存模型: http://zh.cppreference.com/w/cpp/language/memory_model
 - volitile: http://zh.cppreference.com/w/cpp/language/cv
 
