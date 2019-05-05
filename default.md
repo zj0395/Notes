@@ -7,6 +7,7 @@
 #### [GitHub-zj0395](https://github.com/zj0395)
 #### [区块链技术指南](https://yeasy.gitbooks.io/blockchain_guide/content/)
 #### [c++基础](https://blog.csdn.net/xiongchao99/article/details/64441017)
+#### [bash参考手册](https://www.gnu.org/software/bash/manual/bash.html)
 
 ### 博客内容根据[我的笔记](https://github.com/zj0395/Notes)自动更新
 
