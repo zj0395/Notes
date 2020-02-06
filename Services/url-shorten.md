@@ -1,5 +1,6 @@
 # 短链接服务
 ## 接口
+format可为`json`,`jsonp`,`simple`,`xml`  
 ### 生成短链接
 api: http://url.zj0395.com/yourls-api.php?action=shorturl&format=json&url=YOURURL  
 返回格式为json，取`url.keyword`或`shorturl`字段作为结果  
