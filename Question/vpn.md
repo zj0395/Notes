@@ -1,7 +1,7 @@
 # vpn相关配置
 
 ## 在云机器上运行vpn
-每次启动vpn后，需要在机器上添加routes，保证web server和ssh server工作正常  
+每次启动vpn后，需要在机器上添加routes，保证web server和ssh server及其它server工作正常  
 方法: 在openvpn配置文件里增加以下配置
 ```
 cript-security 2
