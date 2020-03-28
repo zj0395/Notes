@@ -4,7 +4,7 @@
 每次启动vpn后，需要在机器上添加routes，保证web server和ssh server及其它server工作正常  
 方法: 在openvpn配置文件里增加以下配置
 ```
-cript-security 2
+script-security 2
 up /home/zj/softs/openvpn-config/set_vpn.sh`
 ```
 /home/zj/softs/openvpn-config/set_vpn.sh脚本代码: 
