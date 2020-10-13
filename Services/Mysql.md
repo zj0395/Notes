@@ -1,9 +1,33 @@
 # Mysql
 
+## 锁
+(https://blog.csdn.net/zhanghongzheng3213/article/details/53436240)
+### 行锁
+- 记录锁(Record Lock)：锁Unique索引或主键索引
+- 间隙锁(Gap Lock)：锁住一个索引区间，或在某条索引记录之前后之后加锁
+- next-key Lcok：在部分设置下（REPEATABLE READ transaction isolation level and with the innodb_locks_unsafe_for_binlog system variable disabled），使用next-key lock进行搜索和索引扫描，阻止幻读
+- 插入意向锁(Insert Intention Lock)：在某索引间隙中插入记录的锁，不同事务插入此间隙中不同位置时不会互斥
+
+### Update锁
+- 是行锁
+- 如果where中用到了主键索引，mysql会锁定主键索引，再锁定非主键索引
+- 如果where中用到了非主键索引，msql会先锁定非主键索引，再锁定主键索引
+- 如果无索引可用，则锁定所有行，扫描全表后释放掉未使用到的行锁
+- 避免冲突：使用主键索引进行更新
+
+### 自增锁
+- 特殊的表级别的锁，Insert时会首先获取该锁来获取主键id
+
+### Insert锁
+- 获取自增索引后，在插入的对应记录上加一个排他行锁
+- 自增索引的获取方式由`innodb_autoinc_lock_mode`控制，为0时加自增锁
+
 ## InnoDB引擎的索引
-- 大大减少服务器需扫描的数据量
+- 大大减少服务器需扫描的数据量，可以有效提升查询速度
 - 帮组服务器避免排序和临时表
 - 将随机I/O变为顺序I/O
+- 但索引数量太多会导致插入、删除、更新效率变低
+
 ### 聚簇索引
 优点：  
 1. 可以把相关数据保存在一起。如根据用户id来聚集数据，可以快速查找某用户的全部数据
@@ -21,6 +45,8 @@
 ### B-Tree索引
 - 所有值按顺序存储
 - ***索引的顺序很重要***
+- 相比二叉树减少I/O次数，每一层包含更多节点
+- 范围查找方便，不用再去上一层找指针，因为节点之间是链表
 
 有效查询：
 - 全值匹配：查询索引中全部字段
